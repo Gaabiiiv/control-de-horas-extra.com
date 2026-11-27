@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Página Personal - Mi Nombre</title>
+    <style>
+        /* Estilos básicos para mejor visualización */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            line-height: 1.6;
+        }
+        
+        header {
+            background: #333;
+            color: #00f721;
+            text-align: center;
+        }
+        header h1 {
+            margin: 0;
+        }
+        nav {
+            background: #444;
+            color: #fff;
+            text-align: left ;
+        }
+
+        nav a {
+            color: #fff;
+        }
+
+        aside {
+           
+            background: #f4f4f4;
+            border: #ccc solid 1px;
+        }
+        footer {
+            background: #ee0404;
+            color: #000000;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div>
+            <h1>Gabriel Vega</h1>
+            <p>Tecnicatura en Software Libre | Estándares para el Desarrollo Web</p>
+        </div>
+    </header>
+
+    <nav>
+        <div>
+            <ul>
+                <li><a href="#sobre-mi">Sobre mí</a></li>
+                <li><a href="#gustos">Gustos</a></li>
+                <li><a href="#contacto">Contacto</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main>
+        <article>
+            <section id="sobre-mi">
+                <h2>Sobre mí</h2>
+                <img src="yo.jpg" alt="Gabriel">
+                <p>
+                    Soy un estudiante de la Tecnicatura en Software Libre de la UNL, espero poder aprender mas de este mundo con mis compañeros y profesores.
+                    Particularmente me gustan los deportes y aprender cosas nuevas relacionadas con tecnologia y redes, que es un poco a lo que me dedico en mi dia a dia,
+                    trabajo en una empresa de telecomuncaciones que si tomamos como referencia como esta conectado todo seria unas cuantas capas mas abajo en lo que seria la interconexion entre servidores y equipos.
+
+                </p>
+            </section>
+
+            <section id="gustos">
+                <h2>Gustos</h2>
+                <ul>
+                    <li> Deportes: Futbol, Basquet, Padel, Calistenia, Ciclismo, etc.</li>
+                    <li> Tecnologias: Me gustaria aprender mas sobre bases de datos y python.</li>
+                    <li> Peliculas: En general las peliculas de terror.</li>
+                </ul>
+            </section>
+        </article>
+
+        <aside>
+            <h3>Datos personales</h3>
+            <ul>
+                <li>Nombre: Gabriel Alejandro Vega</li>
+                <li>Email: gaby_12_3782@hotmail.com</li>
+                <li>Teléfono: 3425357675</li>
+                <li>Ubicación: Santa Fe, Argentina</li>
+            </ul>
+            
+            <h3>Redes sociales</h3>
+            <ul>
+                <li><a href="https://www.linkedin.com/in/gabriel-a-vega" target="_blank">LinkedIn</a></li>
+                <li><a href="https://gitlab.com/gaabiiiv/mi-pagina-personal-gv" target="_blank">GitHub</a></li>
+                <li><a href="https://www.instagram.com/gaabiiivega?igsh=MWkON2UydjRsbXJnOQ==" target="_blank">Instagram</a></li>
+            </ul>
+        </aside>
+    </main>
+
+    <footer id="contacto">
+        <div>
+            <p>Contacto: gaabiii.v@gmail.com</p>
+            <p>&copy; 2025 GNU LESSER GENERAL PUBLIC LICENSE.</p>
+        </div>
+    </footer>
+
+</body>
+</html>
