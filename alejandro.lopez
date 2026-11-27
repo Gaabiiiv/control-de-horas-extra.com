@@ -1,0 +1,1089 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Horas Extras</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: panel de control tipo planilla. Resumen arriba a la izquierda, calendario debajo,
+   editor del día a la derecha; en teléfono todo se apila en ese orden. */
+:root {
+  --bg: #EEF2F0;
+  --surface: #FFFFFF;
+  --ink: #14201D;
+  --muted: #58675F;
+  --line: #D6DEDA;
+  --accent: #0E6B5B;
+  --accent-ink: #FFFFFF;
+  --wk: #2D5F8F;
+  --sat: #A8620E;
+  --sun: #B23A2B;
+  --warn: #9A5B00;
+  --hl: #F2C94C;
+  --via: #8A4FBF;
+  --font-body: 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0E1513; --surface: #172220; --ink: #E4EEEA; --muted: #9DB0A8; --line: #2A3A36;
+    --accent: #3FBFA5; --accent-ink: #06211C; --wk: #7FB0E0; --sat: #E0A04A; --sun: #EE7F6D; --warn: #E8B04C;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0E1513; --surface: #172220; --ink: #E4EEEA; --muted: #9DB0A8; --line: #2A3A36;
+  --accent: #3FBFA5; --accent-ink: #06211C; --wk: #7FB0E0; --sat: #E0A04A; --sun: #EE7F6D; --warn: #E8B04C;
+  color-scheme: dark;
+}
+/* Paletas elegibles desde el panel "Colores de la página". */
+:root[data-palette="oceano"] { color-scheme: light; --bg: #EAF1F7; --surface: #FFFFFF; --ink: #10212F; --muted: #55697A; --line: #D0DCE6; --accent: #0B63A8; --accent-ink: #FFFFFF; --wk: #3A7CA5; --sat: #B5791B; --sun: #B8402F; --warn: #9A5B00; }
+:root[data-palette="atardecer"] { color-scheme: light; --bg: #FBF1E8; --surface: #FFFFFF; --ink: #2A1A12; --muted: #75594A; --line: #EBD8C9; --accent: #C2410C; --accent-ink: #FFFFFF; --wk: #8A5A3C; --sat: #B7791F; --sun: #A61E4D; --warn: #9A5B00; }
+:root[data-palette="violeta"] { color-scheme: light; --bg: #F1EEF8; --surface: #FFFFFF; --ink: #1E1633; --muted: #655B80; --line: #DAD3EA; --accent: #6D3FC4; --accent-ink: #FFFFFF; --wk: #4C5DB0; --sat: #B2701A; --sun: #B8365B; --warn: #9A5B00; --via: #12877A; }
+:root[data-palette="bosque"] { color-scheme: light; --bg: #EDF1E6; --surface: #FFFFFF; --ink: #1A2314; --muted: #5B684F; --line: #D6DEC9; --accent: #3F7D20; --accent-ink: #FFFFFF; --wk: #4A7A8C; --sat: #A8700F; --sun: #A5402B; --warn: #9A5B00; }
+:root[data-palette="grafito"] { color-scheme: dark; --bg: #141414; --surface: #1E1E1E; --ink: #EDEDED; --muted: #A0A0A0; --line: #343434; --accent: #8AB4F8; --accent-ink: #0B1B33; --wk: #7FB0E0; --sat: #E0A04A; --sun: #EE7F6D; --warn: #E8B04C; }
+:root[data-palette="medianoche"] { color-scheme: dark; --bg: #0B1220; --surface: #131C2F; --ink: #E6ECF8; --muted: #9AA8C4; --line: #24314D; --accent: #5AA9FF; --accent-ink: #04152B; --wk: #7C9CFF; --sat: #F0B35A; --sun: #FF8A7A; --warn: #F0B35A; }
+:root[data-palette="contraste"] { color-scheme: light; --bg: #FFFFFF; --surface: #FFFFFF; --ink: #000000; --muted: #333333; --line: #000000; --accent: #0033CC; --accent-ink: #FFFFFF; --wk: #0033CC; --sat: #8A4B00; --sun: #B00020; --warn: #7A4500; }
+.prow { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 10px 12px; margin-bottom: 14px; }
+.prow .field { flex: 1 1 130px; }
+#palette .ptitle { font-size: 13px; color: var(--muted); margin: 0 0 8px; }
+#palette .ptitle.sp { margin-top: 18px; }
+.hlrow { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.hlopt { width: 32px; height: 32px; border-radius: 50%; border: 1px solid rgba(128,128,128,.5); background: var(--c); cursor: pointer; padding: 0; }
+.hlopt:hover { border-color: var(--accent); }
+.hlopt[aria-pressed="true"] { box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--accent); }
+.hlcustom { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--muted); margin-left: 6px; }
+.hlcustom input { width: 36px; height: 32px; padding: 0; border: 1px solid var(--line); border-radius: 6px; background: var(--bg); cursor: pointer; }
+#palette .swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 8px; }
+.swatch { display: flex; flex-direction: column; gap: 6px; align-items: flex-start; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); cursor: pointer; text-align: left; font-size: 13px; }
+.swatch:hover { border-color: var(--accent); }
+.swatch[aria-pressed="true"] { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent); }
+.swatch .dots { display: flex; }
+.swatch .dots i { width: 16px; height: 16px; border-radius: 50%; border: 1px solid rgba(128,128,128,.45); margin-right: -4px; }
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--ink);
+  font-family: var(--font-body); font-size: 15px; line-height: 1.45;
+  padding-block: 20px 40px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+h1, h2, h3, p { margin: 0; text-wrap: balance; }
+button, input, textarea { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.app { max-width: 1120px; margin: 0 auto; }
+
+/* Cabecera */
+.top { display: flex; flex-wrap: wrap; gap: 12px 24px; align-items: center; justify-content: space-between; margin-bottom: 18px; }
+.brand { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+h1 { font-size: 22px; font-weight: 600; letter-spacing: -0.01em; }
+.status { font-size: 12px; color: var(--muted); border: 1px solid var(--line); border-radius: 999px; padding: 2px 10px; background: var(--surface); }
+.status.ok::before { content: ""; display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--accent); margin-right: 6px; }
+.status.warn { color: var(--warn); }
+.nav { display: flex; align-items: center; gap: 8px; }
+.navlabel { min-width: 9.5em; text-align: center; }
+.nav h2 { font-size: 18px; font-weight: 600; text-transform: capitalize; line-height: 1.2; }
+#mrange { font-size: 12px; color: var(--muted); }
+.who { font-size: 12px; color: var(--muted); max-width: 100%; overflow-wrap: anywhere; }
+.cell .n small { font-size: 11px; font-weight: 500; color: var(--muted); }
+.icon-btn { width: 38px; height: 38px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); cursor: pointer; font-size: 18px; line-height: 1; }
+.icon-btn:hover { border-color: var(--accent); }
+
+/* Botones */
+.btn { border-radius: 8px; border: 1px solid var(--line); background: var(--surface); padding: 8px 14px; cursor: pointer; font-weight: 500; }
+.btn:hover { border-color: var(--accent); }
+.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.btn.primary:hover { filter: brightness(1.06); }
+.btn.danger { color: var(--sun); }
+.btn[disabled] { opacity: .5; cursor: default; }
+
+/* Grilla principal */
+.grid {
+  display: grid; gap: 16px;
+  grid-template-columns: minmax(0, 1fr) 360px;
+  align-items: start;
+}
+/* En pantalla ancha hay dos columnas independientes (sin huecos entre recuadros);
+   en teléfono las columnas se disuelven y los recuadros se ordenan por áreas. */
+.col { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+#summary { grid-area: sum; } #calwrap { grid-area: cal; } #editor { grid-area: edit; }
+#detail { grid-area: det; } #rules { grid-area: rules; } #settings { grid-area: set; } #palette { grid-area: pal; }
+@media (max-width: 900px) {
+  .col { display: contents; }
+  .grid { grid-template-columns: minmax(0, 1fr); grid-template-areas: "sum" "cal" "edit" "det" "rules" "set" "pal"; }
+}
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 18px; min-width: 0; }
+.panel h3 { font-size: 13px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; }
+
+/* Resumen */
+.total { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 16px; }
+.big { font-family: var(--font-mono); font-weight: 500; font-size: 40px; line-height: 1.1; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.big .u { font-size: 16px; color: var(--muted); margin: 0 8px 0 3px; letter-spacing: 0; }
+.sub { color: var(--muted); font-size: 14px; }
+.bar { display: flex; height: 10px; border-radius: 5px; overflow: hidden; background: var(--line); margin: 16px 0 12px; }
+.bar i { display: block; height: 100%; }
+.legend { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px 16px; }
+@media (max-width: 560px) { .legend { grid-template-columns: minmax(0, 1fr); } }
+.leg { display: flex; flex-direction: column; gap: 2px; font-size: 13px; color: var(--muted); }
+.leg b { font-family: var(--font-mono); font-weight: 500; font-size: 16px; color: var(--ink); font-variant-numeric: tabular-nums; }
+.leg span::before { content: ""; display: inline-block; width: 9px; height: 9px; border-radius: 2px; margin-right: 6px; background: var(--c); }
+.tarifa { margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--line); }
+.tarifa .tl { font-size: 12px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
+.money { display: flex; flex-direction: column; gap: 0; margin-left: auto; text-align: right; }
+.money span { font-size: 12px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.money b { font-family: var(--font-mono); font-weight: 500; font-size: 28px; line-height: 1.15; color: var(--accent); font-variant-numeric: tabular-nums; }
+@media (max-width: 560px) { .money { margin-left: 0; text-align: left; } }
+.legend.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+@media (max-width: 560px) { .legend.two { grid-template-columns: minmax(0, 1fr); } }
+.leg small { font-size: 12px; color: var(--muted); }
+.split { display: flex; justify-content: space-between; gap: 12px; font-size: 13px; color: var(--muted); margin-top: 6px; }
+.split b { font-family: var(--font-mono); font-weight: 500; color: var(--ink); font-variant-numeric: tabular-nums; }
+.year { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--line); font-size: 13px; color: var(--muted); }
+.year b { font-family: var(--font-mono); font-weight: 500; color: var(--ink); }
+
+/* Calendario */
+.dowrow, .cal { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; }
+.dowrow { margin-bottom: 6px; }
+.dowrow span { text-align: center; font-size: 12px; font-weight: 600; color: var(--muted); letter-spacing: .04em; }
+.cell {
+  position: relative; min-height: 78px; padding: 6px; text-align: left; cursor: pointer;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 8px;
+  display: flex; flex-direction: column; justify-content: space-between; gap: 4px; min-width: 0;
+}
+.cell.blank { visibility: hidden; border: 0; }
+.cell .n { font-size: 13px; font-weight: 600; }
+.cell .b { align-self: flex-start; font-family: var(--font-mono); font-size: 13px; font-weight: 500; padding: 1px 6px; border-radius: 5px; color: var(--accent-ink); background: var(--c); font-variant-numeric: tabular-nums; }
+.cell .tag { font-size: 10.5px; letter-spacing: .02em; color: var(--sun); line-height: 1.1; }
+.cell .tag.soft { color: var(--muted); }
+.cell.semana { --c: var(--wk); }
+.cell.sabado { --c: var(--sat); background: var(--surface); background: color-mix(in srgb, var(--sat) 9%, var(--surface)); }
+.cell.domingo { --c: var(--sun); background: var(--surface); background: color-mix(in srgb, var(--sun) 9%, var(--surface)); }
+.cell.feriado { --c: var(--sun); background: var(--surface); background: color-mix(in srgb, var(--sun) 14%, var(--surface)); }
+.cell.loaded { border-color: var(--hl); box-shadow: inset 0 0 0 1px var(--hl); background: var(--surface); background: color-mix(in srgb, var(--hl) 38%, var(--surface)); }
+.cell.viat { border-color: var(--via); box-shadow: inset 0 0 0 1px var(--via); background: var(--surface); background: color-mix(in srgb, var(--via) 26%, var(--surface)); }
+.cell .v { align-self: flex-start; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 11px; font-weight: 600; letter-spacing: .02em; padding: 1px 6px; border-radius: 5px; color: #fff; background: var(--via); }
+.cell:hover { border-color: var(--accent); }
+.cell.today .n { color: var(--accent); }
+.cell.today .n::after { content: " · hoy"; font-weight: 500; font-size: 11px; }
+.cell.sel { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent); }
+@media (max-width: 560px) {
+  .cell { min-height: 58px; padding: 4px; }
+  .cell .b { font-size: 11px; padding: 0 4px; }
+  .cell .v { font-size: 0; padding: 0 3px; }
+  .cell .v::before { content: "Viát."; font-size: 9px; letter-spacing: 0; }
+  .cell.today .n::after { content: ""; }
+  .cell .tag { font-size: 0; }
+  .cell .tag::before { content: ""; display: block; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+  .dowrow, .cal { gap: 3px; }
+}
+
+/* Editor */
+.field { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.field label { font-size: 13px; color: var(--muted); }
+.row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-bottom: 12px; }
+select, input[type="date"], input[type="time"], input[type="number"], input[type="text"] {
+  width: 100%; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg);
+  font-family: var(--font-mono); font-variant-numeric: tabular-nums;
+}
+input[type="text"] { font-family: var(--font-body); }
+.check { display: flex; align-items: center; gap: 8px; margin: 4px 0 12px; font-size: 14px; }
+.check input { width: 18px; height: 18px; accent-color: var(--accent); }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 12px; }
+.chip { border: 1px solid var(--line); background: var(--bg); border-radius: 999px; padding: 4px 12px; cursor: pointer; font-family: var(--font-mono); font-size: 13px; }
+.chip:hover { border-color: var(--accent); }
+.dtitle { font-size: 18px; font-weight: 600; margin-bottom: 2px; }
+.rule { color: var(--muted); font-size: 13.5px; margin-bottom: 14px; }
+.result { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding: 12px 14px; border-radius: 8px; background: var(--bg); margin: 4px 0 14px; }
+.result b { font-family: var(--font-mono); font-weight: 500; font-size: 20px; font-variant-numeric: tabular-nums; }
+.result small { color: var(--muted); }
+.warnline { color: var(--warn); font-size: 13px; margin: -6px 0 12px; }
+.btns { display: flex; flex-wrap: wrap; gap: 8px; }
+.empty { color: var(--muted); }
+
+/* Detalle */
+.dhead { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.dhead h3 { margin: 0; }
+.scroll { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 14px; }
+th { text-align: left; font-size: 12px; font-weight: 600; color: var(--muted); letter-spacing: .04em; padding: 6px 10px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+td { padding: 9px 10px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+td.num, th.num { text-align: right; font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+td.note { white-space: normal; min-width: 120px; color: var(--muted); }
+tbody tr { cursor: pointer; }
+tbody tr:hover { background: var(--bg); }
+.pill { display: inline-block; font-size: 12px; padding: 1px 8px; border-radius: 999px; color: var(--accent-ink); background: var(--c); }
+.pill.semana { --c: var(--wk); } .pill.sabado { --c: var(--sat); } .pill.domingo, .pill.feriado { --c: var(--sun); } .pill.viat { --c: var(--via); }
+.copybox { margin-bottom: 10px; }
+.copybox textarea { width: 100%; min-height: 110px; padding: 10px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); font-family: var(--font-mono); font-size: 13px; }
+
+/* Reglas y ajustes */
+.rules dl { margin: 0; display: grid; gap: 10px; font-size: 14px; }
+.rules dt { font-weight: 600; }
+.rules dd { margin: 0; color: var(--muted); }
+details.panel summary { cursor: pointer; font-weight: 600; font-size: 13px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+details.panel[open] summary { margin-bottom: 14px; }
+.notice { font-size: 13px; color: var(--warn); margin-top: 8px; }
+
+#toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(18px + env(safe-area-inset-bottom, 0px)); background: var(--ink); color: var(--bg); padding: 10px 16px; border-radius: 8px; font-size: 14px; max-width: calc(100vw - 32px); opacity: 0; pointer-events: none; transition: opacity .15s; z-index: 20; }
+#toast.on { opacity: 1; }
+@media (prefers-reduced-motion: reduce) { #toast { transition: none; } }
+</style>
+
+<div class="app">
+  <header class="top">
+    <div class="brand">
+      <h1>Horas extras</h1>
+      <span class="status" id="status">Conectando…</span>
+      <span class="who" id="who"></span>
+    </div>
+    <div class="nav">
+      <button type="button" class="icon-btn" id="prev" aria-label="Período anterior">‹</button>
+      <div class="navlabel"><h2 id="mlabel"></h2><div id="mrange"></div></div>
+      <button type="button" class="icon-btn" id="next" aria-label="Período siguiente">›</button>
+      <button type="button" class="btn" id="today">Hoy</button>
+    </div>
+  </header>
+
+  <main class="grid">
+    <div class="col">
+    <section class="panel" id="summary" aria-live="polite"></section>
+
+    <section class="panel" id="calwrap">
+      <div class="prow">
+        <div class="field"><label for="p-a">Desde</label><input type="date" id="p-a"></div>
+        <div class="field"><label for="p-b">Hasta</label><input type="date" id="p-b"></div>
+        <button type="button" class="btn" id="p-reset">Restablecer</button>
+      </div>
+      <div class="dowrow" aria-hidden="true"><span>L</span><span>M</span><span>X</span><span>J</span><span>V</span><span>S</span><span>D</span></div>
+      <div class="cal" id="cal"></div>
+      <p class="notice" id="holnote" hidden></p>
+    </section>
+
+    <section class="panel" id="detail">
+      <div class="dhead">
+        <h3>Detalle del período</h3>
+        <div class="btns">
+          <button type="button" class="btn" id="copy">Copiar resumen</button>
+          <button type="button" class="btn" id="pdf">Descargar PDF</button>
+          <button type="button" class="btn" id="export">Descargar CSV</button>
+        </div>
+      </div>
+      <div class="copybox" id="copybox" hidden><textarea id="copytext" readonly aria-label="Resumen del mes"></textarea></div>
+      <div class="scroll"><table>
+        <thead><tr><th>Día</th><th>Tipo</th><th>Horario</th><th class="num">Extras</th><th class="num">1.ª hora</th><th class="num">Siguientes</th><th class="num">Importe</th><th>Viáticos</th><th>Nota</th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table></div>
+      <p class="empty" id="norows" hidden>Todavía no hay horas cargadas en este período.</p>
+    </section>
+    </div>
+
+    <div class="col">
+    <section class="panel" id="editor"></section>
+
+    <section class="panel rules" id="rules"></section>
+
+    <details class="panel" id="settings">
+      <summary>Ajustes de jornada</summary>
+      <div class="row">
+        <div class="field"><label for="c-start">Entrada habitual</label><select id="c-start"></select></div>
+        <div class="field"><label for="c-end">Salida habitual</label><select id="c-end"></select></div>
+      </div>
+      <label class="check"><input type="checkbox" id="c-early"> Contar como extra lo que llegue antes de la entrada habitual</label>
+      <div class="row">
+        <div class="field"><label for="c-p1">Primera hora extra ($ por hora)</label><input type="number" id="c-p1" min="0" step="100"></div>
+        <div class="field"><label for="c-p2">Horas siguientes ($ por hora)</label><input type="number" id="c-p2" min="0" step="100"></div>
+      </div>
+    </details>
+
+    <details class="panel" id="palette">
+      <summary>Colores de la página</summary>
+      <p class="ptitle">Paleta de la página</p>
+      <div class="swatches" id="swatches"></div>
+      <p class="ptitle sp">Color de los días con horas cargadas</p>
+      <div class="hlrow" id="hlrow"></div>
+    </details>
+    </div>
+  </main>
+  <div id="toast" role="status" aria-live="polite"></div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+  /*CORE*/
+  var MESES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+  var DIAS = ['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
+  var DIAS3 = ['dom','lun','mar','mié','jue','vie','sáb'];
+  var HOL = {
+    '2026-01-01':'Año Nuevo','2026-02-16':'Carnaval','2026-02-17':'Carnaval','2026-03-24':'Día de la Memoria',
+    '2026-04-02':'Día de Malvinas y Jueves Santo','2026-04-03':'Viernes Santo','2026-05-01':'Día del Trabajador',
+    '2026-05-25':'Revolución de Mayo','2026-06-15':'Paso a la Inmortalidad de Güemes (trasladado)','2026-06-20':'Día de la Bandera',
+    '2026-07-09':'Día de la Independencia','2026-08-17':'Paso a la Inmortalidad de San Martín (trasladado)',
+    '2026-10-12':'Día de la Diversidad Cultural','2026-11-23':'Día de la Soberanía Nacional (trasladado)',
+    '2026-12-08':'Inmaculada Concepción','2026-12-25':'Navidad'
+  };
+  var TUR = { '2026-03-23':'Día no laborable con fines turísticos','2026-07-10':'Día no laborable con fines turísticos','2026-12-07':'Día no laborable con fines turísticos' };
+  var S = { cfg: { start: '08:00', end: '17:00', early: false, p1: 27000, p2: 9000 }, entries: {} };
+  var pad = function (n) { return String(n).padStart(2, '0'); };
+  var key = function (y, m, d) { return y + '-' + pad(m + 1) + '-' + pad(d); };
+  var parseKey = function (k) { var p = k.split('-').map(Number); return { y: p[0], m: p[1] - 1, d: p[2] }; };
+  var dowOf = function (k) { var p = parseKey(k); return new Date(p.y, p.m, p.d).getDay(); };
+  var toMin = function (t) { var p = t.split(':').map(Number); return p[0] * 60 + p[1]; };
+  var okT = function (t) { return /^\d{2}:\d{2}$/.test(t || ''); };
+  var has = function (o, k) { return Object.prototype.hasOwnProperty.call(o, k); };
+  function isHol(k, e) { return e && typeof e.hol === 'boolean' ? e.hol : has(HOL, k); }
+  function kind(k, e) {
+    if (isHol(k, e)) return 'feriado';
+    var w = dowOf(k);
+    return w === 0 ? 'domingo' : w === 6 ? 'sabado' : 'semana';
+  }
+  function calc(k, e) {
+    var kd = kind(k, e), c = S.cfg;
+    if (kd !== 'semana') {
+      if (!okT(e.in) || !okT(e.out)) return { min: 0, span: 0, kind: kd };
+      var s1 = toMin(e.in), f1 = toMin(e.out);
+      if (f1 <= s1) f1 += 1440;
+      return { min: Math.floor(Math.max(0, f1 - s1) / 60) * 60, span: f1 - s1, kind: kd };
+    }
+    if (!okT(e.out)) return { min: 0, span: 0, kind: kd };
+    var end = toMin(c.end), start = toMin(c.start);
+    var s = okT(e.in) ? toMin(e.in) : start;
+    var f = toMin(e.out);
+    if (f <= s) f += 1440;
+    var min = Math.max(0, f - end);
+    if (c.early && s < start) min += start - s;
+    return { min: Math.floor(min / 60) * 60, span: f - s, kind: kd };
+  }
+  /* La primera hora extra de cada día va a una tarifa y el resto a otra. */
+  function splitMin(min) { return { first: Math.min(min, 60), rest: Math.max(0, min - 60) }; }
+  /* Importe del día: precio por hora de la 1.ª hora y de las siguientes, redondeado al peso. */
+  function money(min) {
+    var s = splitMin(min);
+    var a1 = Math.round(s.first / 60 * (+S.cfg.p1 || 0)), a2 = Math.round(s.rest / 60 * (+S.cfg.p2 || 0));
+    return { a1: a1, a2: a2, total: a1 + a2 };
+  }
+  var fmtMoney = function (n) { return '$ ' + String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, '.'); };
+  function monthStats(y, m) {
+    var rg = periodKeys(y, m);
+    var r = { semana: 0, sabado: 0, fin: 0, days: 0, viat: 0, total: 0, first: 0, rest: 0, a1: 0, a2: 0, amount: 0 };
+    Object.keys(S.entries).forEach(function (k) {
+      if (k < rg.a || k > rg.b) return;
+      if (S.entries[k] && S.entries[k].via) r.viat++;
+      var c = calc(k, S.entries[k]);
+      if (!c.min) return;
+      r.days++; r.total += c.min;
+      r.first += splitMin(c.min).first; r.rest += splitMin(c.min).rest;
+      var mo = money(c.min); r.a1 += mo.a1; r.a2 += mo.a2; r.amount += mo.total;
+      if (c.kind === 'semana') r.semana += c.min; else if (c.kind === 'sabado') r.sabado += c.min; else r.fin += c.min;
+    });
+    return r;
+  }
+  function yearTotal(y) {
+    var t = 0, a = getPeriod(y, 0).a, b = getPeriod(y, 11).b;
+    Object.keys(S.entries).forEach(function (k) { if (k >= a && k <= b) t += calc(k, S.entries[k]).min; });
+    return t;
+  }
+  /* Cada período se nombra por el mes en que cierra. Por defecto va del 22 de un mes al 21 del siguiente,
+     pero sus fechas se pueden cambiar (cfg.periods guarda solo los períodos modificados). */
+  var pkey = function (y, m) { return y + '-' + pad(m + 1); };
+  var keyToDate = function (k) { var p = parseKey(k); return new Date(p.y, p.m, p.d); };
+  function addDays(k, n) { var p = parseKey(k), d = new Date(p.y, p.m, p.d + n); return key(d.getFullYear(), d.getMonth(), d.getDate()); }
+  function shiftM(y, m, n) { var d = new Date(y, m + n, 1); return { y: d.getFullYear(), m: d.getMonth() }; }
+  function defPeriod(y, m) {
+    var a = new Date(y, m - 1, 22), b = new Date(y, m, 21);
+    return { a: key(a.getFullYear(), a.getMonth(), a.getDate()), b: key(b.getFullYear(), b.getMonth(), b.getDate()) };
+  }
+  function getPeriod(y, m) {
+    var o = S.cfg.periods && S.cfg.periods[pkey(y, m)];
+    return o && okD(o.a) && okD(o.b) && o.a <= o.b ? { a: o.a, b: o.b } : defPeriod(y, m);
+  }
+  var okD = function (k) { return /^\d{4}-\d{2}-\d{2}$/.test(k || ''); };
+  function periodKeys(y, m) {
+    var g = getPeriod(y, m);
+    return { a: g.a, b: g.b, da: keyToDate(g.a), db: keyToDate(g.b) };
+  }
+  function hasCustom(y, m) {
+    var g = getPeriod(y, m), d = defPeriod(y, m);
+    return g.a !== d.a || g.b !== d.b;
+  }
+  /* Cambia las fechas de un período y ajusta el anterior y el siguiente para que no se pisen ni queden días sueltos. */
+  function setPeriod(y, m, a, b) {
+    if (!okD(a) || !okD(b) || a > b) return 'La fecha "Desde" tiene que ser anterior o igual a "Hasta".';
+    if (keyToDate(b) - keyToDate(a) > 62 * 86400000) return 'Un período no puede durar más de 2 meses.';
+    var pm = shiftM(y, m, -1), nm = shiftM(y, m, 1), prev = getPeriod(pm.y, pm.m), next = getPeriod(nm.y, nm.m);
+    var pb = addDays(a, -1), na = addDays(b, 1);
+    if (pb < prev.a) return 'El período anterior quedaría sin días. Cambiá primero sus fechas.';
+    if (na > next.b) return 'El período siguiente quedaría sin días. Cambiá primero sus fechas.';
+    var P = Object.assign({}, S.cfg.periods || {});
+    P[pkey(y, m)] = { a: a, b: b };
+    P[pkey(pm.y, pm.m)] = { a: prev.a, b: pb };
+    P[pkey(nm.y, nm.m)] = { a: na, b: next.b };
+    Object.keys(P).forEach(function (k) {
+      var q = k.split('-').map(Number), d = defPeriod(q[0], q[1] - 1);
+      if (P[k].a === d.a && P[k].b === d.b) delete P[k];
+    });
+    S.cfg.periods = P;
+    return null;
+  }
+  function periodOf(k) {
+    var p = parseKey(k), d = new Date(p.y, p.d >= 22 ? p.m + 1 : p.m, 1);
+    var base = { y: d.getFullYear(), m: d.getMonth() };
+    var cands = [base, shiftM(base.y, base.m, -1), shiftM(base.y, base.m, 1)];
+    for (var i = 0; i < cands.length; i++) { var g = getPeriod(cands[i].y, cands[i].m); if (k >= g.a && k <= g.b) return cands[i]; }
+    return base;
+  }
+  var fmtDate = function (k) { var p = parseKey(k); return pad(p.d) + '/' + pad(p.m + 1) + '/' + p.y; };
+  var fmtHM = function (m) { return Math.floor(m / 60) + ':' + pad(m % 60); };
+  var fmtLong = function (m) {
+    var h = Math.floor(m / 60), mm = m % 60;
+    if (!m) return '0 h';
+    return h && mm ? h + ' h ' + mm + ' min' : h ? h + ' h' : mm + ' min';
+  };
+  var dec = function (m) { return (m / 60).toFixed(2).replace('.', ','); };
+  /*ENDCORE*/
+
+  var $ = function (id) { return document.getElementById(id); };
+  var cap = function (s) { return s.charAt(0).toUpperCase() + s.slice(1); };
+  var esc = function (s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); };
+  var KIND_NAME = { semana: 'Hábil', sabado: 'Sábado', domingo: 'Domingo', feriado: 'Feriado' };
+
+  var now = new Date();
+  var todayKey = key(now.getFullYear(), now.getMonth(), now.getDate());
+  var view = periodOf(todayKey);
+  var sel = todayKey;
+  var backend = 'local', col = null, downloads = null, whoName = '';
+  var LS = 'horas-extras-v1';
+
+  /* ---------- Persistencia ---------- */
+  function loadLocal() {
+    try {
+      var raw = localStorage.getItem(LS);
+      if (!raw) return;
+      var d = JSON.parse(raw);
+      if (d && d.entries) S.entries = d.entries;
+      if (d && d.cfg) S.cfg = Object.assign(S.cfg, d.cfg);
+    } catch (e) { /* sin almacenamiento */ }
+  }
+  function saveLocal() {
+    try { localStorage.setItem(LS, JSON.stringify({ cfg: S.cfg, entries: S.entries })); } catch (e) { /* sin almacenamiento */ }
+  }
+  function setStatus(s) {
+    var el = $('status');
+    el.className = 'status';
+    if (s === 'db') { el.textContent = 'Guardado en tu cuenta'; el.classList.add('ok'); el.title = 'Tus horas se guardan de forma privada y se ven desde cualquier dispositivo.'; }
+    else if (s === 'local') { el.textContent = 'Solo en este navegador'; el.classList.add('warn'); el.title = 'No hay cuenta disponible: los datos quedan en este navegador.'; }
+    else if (s === 'error') { el.textContent = 'Sin conexión con tu cuenta'; el.classList.add('warn'); }
+    else { el.textContent = 'Conectando…'; }
+  }
+  function persistEntry(k, e) {
+    if (backend === 'db') {
+      var ref = col.doc('e-' + k);
+      var p = e ? ref.set(e) : ref.delete();
+      p.then(function () { setStatus('db'); }).catch(function () { setStatus('error'); toast('No se pudo guardar. Probá de nuevo en unos segundos.'); });
+    } else { saveLocal(); }
+  }
+  function persistCfg() {
+    if (backend === 'db') {
+      col.doc('cfg').set(S.cfg).catch(function () { setStatus('error'); toast('No se pudieron guardar los ajustes.'); });
+    } else { saveLocal(); }
+  }
+
+  var toastT;
+  function toast(msg) {
+    var t = $('toast'); t.textContent = msg; t.classList.add('on');
+    clearTimeout(toastT); toastT = setTimeout(function () { t.classList.remove('on'); }, 2800);
+  }
+
+  /* ---------- Resumen ---------- */
+  function renderSummary() {
+    var st = monthStats(view.y, view.m);
+    var h = Math.floor(st.total / 60), mm = st.total % 60;
+    var tot = st.total || 1;
+    var pc = function (v) { return (v / tot * 100).toFixed(1) + '%'; };
+    var dtxt = st.days === 1 ? '1 día con extras' : st.days + ' días con extras';
+    $('summary').innerHTML =
+      '<h3>Total del período</h3>' +
+      '<div class="total"><div class="big">' + h + '<span class="u">h</span>' + pad(mm) + '<span class="u">min</span></div>' +
+      '<div class="sub">' + dec(st.total) + ' h en decimal · ' + dtxt + '</div>' +
+      '<div class="money"><span>A cobrar</span><b>' + fmtMoney(st.amount) + '</b></div></div>' +
+      '<div class="bar" role="img" aria-label="Reparto de horas extras del mes">' +
+        (st.total ? '<i style="width:' + pc(st.semana) + ';background:var(--wk)"></i><i style="width:' + pc(st.sabado) + ';background:var(--sat)"></i><i style="width:' + pc(st.fin) + ';background:var(--sun)"></i>' : '') +
+      '</div>' +
+      '<div class="legend">' +
+        '<div class="leg" style="--c:var(--wk)"><span>Lunes a viernes</span><b>' + fmtLong(st.semana) + '</b></div>' +
+        '<div class="leg" style="--c:var(--sat)"><span>Sábados</span><b>' + fmtLong(st.sabado) + '</b></div>' +
+        '<div class="leg" style="--c:var(--sun)"><span>Domingos y feriados</span><b>' + fmtLong(st.fin) + '</b></div>' +
+      '</div>' +
+      '<div class="tarifa"><div class="tl">Por tarifa</div><div class="legend two">' +
+        '<div class="leg" style="--c:var(--accent)"><span>Primera hora de cada día</span><b>' + fmtLong(st.first) + '</b><small>' + dec(st.first) + ' h · ' + fmtMoney(st.a1) + '</small></div>' +
+        '<div class="leg" style="--c:var(--muted)"><span>Horas siguientes</span><b>' + fmtLong(st.rest) + '</b><small>' + dec(st.rest) + ' h · ' + fmtMoney(st.a2) + '</small></div>' +
+      '</div></div>' +
+      '<div class="legend" style="margin-top:14px"><div class="leg" style="--c:var(--via)"><span>Días con viáticos</span><b>' + (st.viat === 1 ? '1 día' : st.viat + ' días') + '</b></div></div>' +
+      '<div class="year">Acumulado de los períodos de ' + view.y + ': <b>' + fmtLong(yearTotal(view.y)) + '</b></div>';
+  }
+
+  /* ---------- Calendario ---------- */
+  var MES3 = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+  function renderCal() {
+    var rg = periodKeys(view.y, view.m);
+    $('mlabel').textContent = MESES[view.m] + ' ' + view.y;
+    $('p-a').value = rg.a; $('p-b').value = rg.b; $('p-reset').disabled = !hasCustom(view.y, view.m);
+    $('mrange').textContent = rg.da.getDate() + ' ' + MES3[rg.da.getMonth()] + ' al ' + rg.db.getDate() + ' ' + MES3[rg.db.getMonth()];
+    var first = (rg.da.getDay() + 6) % 7;
+    var h = '';
+    for (var i = 0; i < first; i++) h += '<span class="cell blank" aria-hidden="true"></span>';
+    for (var dt = new Date(rg.da.getTime()); dt <= rg.db; dt.setDate(dt.getDate() + 1)) {
+      var d = dt.getDate(), mo = dt.getMonth();
+      var k = key(dt.getFullYear(), mo, d), e = S.entries[k];
+      var kd = kind(k, e), hol = isHol(k, e), tur = has(TUR, k) && !hol;
+      var c = e ? calc(k, e) : null;
+      var cls = ['cell', kd];
+      if (k === todayKey) cls.push('today');
+      if (e && okT(e.out)) cls.push('loaded');
+      if (e && e.via) cls.push('viat');
+      if (k === sel) cls.push('sel');
+      var label = DIAS[dowOf(k)] + ' ' + d + ' de ' + MESES[mo] + (hol ? ', feriado' : '') + (e && e.via ? ', con viáticos' : '') + (c && c.min ? ', ' + fmtLong(c.min) + ' de extras' : '') + (e && okT(e.out) ? ', con horas cargadas' : '');
+      h += '<button type="button" class="' + cls.join(' ') + '" data-k="' + k + '" aria-label="' + label + '" aria-pressed="' + (k === sel) + '">' +
+        '<span class="n">' + d + (d === 1 || k === rg.a ? ' <small>' + MES3[mo] + '</small>' : '') + '</span>' +
+        (e && e.via ? '<span class="v">Viáticos</span>' : '') +
+        (c && c.min ? '<span class="b">' + fmtHM(c.min) + '</span>' : '') +
+        (hol ? '<span class="tag" title="' + esc(HOL[k] || 'Feriado marcado por vos') + '">Feriado</span>' : tur ? '<span class="tag soft" title="' + TUR[k] + '">No laborable</span>' : '') +
+        '</button>';
+    }
+    $('cal').innerHTML = h;
+    var hn = $('holnote');
+    var outside = [rg.da.getFullYear(), rg.db.getFullYear()].filter(function (yy, ix, arr) { return yy !== 2026 && arr.indexOf(yy) === ix; });
+    if (outside.length) { hn.hidden = false; hn.textContent = 'No hay feriados precargados para ' + outside.join(' y ') + '. Marcalos a mano en cada día.'; }
+    else hn.hidden = true;
+  }
+
+  /* ---------- Detalle ---------- */
+  function monthKeys() {
+    var rg = periodKeys(view.y, view.m);
+    return Object.keys(S.entries).filter(function (k) {
+      var e = S.entries[k];
+      return k >= rg.a && k <= rg.b && (calc(k, e).min > 0 || e.note || e.via);
+    }).sort();
+  }
+  function renderRows() {
+    var ks = monthKeys(), h = '';
+    ks.forEach(function (k) {
+      var e = S.entries[k], c = calc(k, e), p = parseKey(k);
+      var hor = (okT(e.in) ? e.in : '') + (okT(e.in) && okT(e.out) ? ' – ' : okT(e.out) ? 'sale ' : '') + (okT(e.out) ? e.out : '');
+      h += '<tr data-k="' + k + '"><td>' + DIAS3[dowOf(k)] + ' ' + p.d + '/' + pad(p.m + 1) + '</td>' +
+        '<td><span class="pill ' + c.kind + '">' + KIND_NAME[c.kind] + '</span></td>' +
+        '<td class="num">' + (hor || '—') + '</td>' +
+        '<td class="num">' + (c.min ? fmtHM(c.min) : '—') + '</td>' +
+        '<td class="num">' + (c.min ? fmtHM(splitMin(c.min).first) : '—') + '</td>' +
+        '<td class="num">' + (splitMin(c.min).rest ? fmtHM(splitMin(c.min).rest) : '—') + '</td>' +
+        '<td class="num">' + (c.min ? fmtMoney(money(c.min).total) : '—') + '</td>' +
+        '<td>' + (e.via ? '<span class="pill viat">Viáticos</span>' : '') + '</td>' +
+        '<td class="note">' + (e.note ? esc(e.note) : '') + '</td></tr>';
+    });
+    $('rows').innerHTML = h;
+    $('norows').hidden = ks.length > 0;
+  }
+
+  /* ---------- Listas de horas redondas ---------- */
+  function hourOpts(val, blank) {
+    var h = blank ? '<option value=""' + (val ? '' : ' selected') + '>--:--</option>' : '', found = !val;
+    for (var i = 0; i < 24; i++) {
+      var t = pad(i) + ':00', sel = t === val;
+      if (sel) found = true;
+      h += '<option value="' + t + '"' + (sel ? ' selected' : '') + '>' + t + '</option>';
+    }
+    /* Si ya había un horario con minutos guardado, se conserva como opción extra. */
+    if (!found && okT(val)) h += '<option value="' + val + '" selected>' + val + '</option>';
+    return h;
+  }
+  function hourSel(id, val, blank) { return '<select id="' + id + '">' + hourOpts(val, blank) + '</select>'; }
+
+  /* ---------- Reglas y ajustes ---------- */
+  function renderRules() {
+    var c = S.cfg;
+    $('rules').innerHTML = '<h3>Cómo se cuenta</h3><dl>' +
+      '<div><dt>Lunes a viernes</dt><dd>Jornada de ' + c.start + ' a ' + c.end + '. Son extras las horas desde las ' + c.end + ' hasta la salida.</dd></div>' +
+      '<div><dt>Sábados, domingos y feriados</dt><dd>Todas las horas trabajadas son extras, de la entrada a la salida.</dd></div>' +
+      '<div><dt>Período</dt><dd>Cada período se nombra por el mes en que cierra. Por defecto va del 22 de un mes al 21 del siguiente, pero podés cambiar las fechas "Desde" y "Hasta" de cualquier período sobre el calendario.</dd></div>' +
+      '<div><dt>Tarifa</dt><dd>En cada día, la primera hora extra se paga ' + fmtMoney(c.p1) + ' y cada hora siguiente ' + fmtMoney(c.p2) + '. Solo se cuentan horas completas.</dd></div>' +
+      '<div><dt>Feriados</dt><dd>Los nacionales de 2026 vienen cargados. Podés marcar o desmarcar cualquier día en su ficha.</dd></div>' +
+      '<div><dt>Viáticos</dt><dd>Tildá "Corresponde viáticos" en cada día que corresponda. El día se pinta de otro color en el calendario y se detalla en el resumen, el PDF y el CSV.</dd></div></dl>';
+    $('c-start').innerHTML = hourOpts(c.start, false); $('c-end').innerHTML = hourOpts(c.end, false);
+    $('c-start').value = c.start; $('c-end').value = c.end; $('c-early').checked = !!c.early;
+    $('c-p1').value = c.p1; $('c-p2').value = c.p2;
+  }
+
+  /* ---------- Editor del día ---------- */
+  function renderEditor() {
+    var ed = $('editor');
+    if (!sel) { ed.innerHTML = '<p class="empty">Elegí un día del calendario para cargar tus horas.</p>'; return; }
+    var e = S.entries[sel] || {}, p = parseKey(sel);
+    var hol = isHol(sel, S.entries[sel]);
+    var info = has(HOL, sel) ? HOL[sel] : has(TUR, sel) ? TUR[sel] + ' (se cuenta como día hábil salvo que lo marques como feriado)' : '';
+    ed.innerHTML =
+      '<h3>Cargar día</h3>' +
+      '<div class="dtitle">' + cap(DIAS[dowOf(sel)]) + ' ' + p.d + ' de ' + MESES[p.m] + '</div>' +
+      '<p class="rule" id="rulel"></p>' +
+      (info ? '<p class="rule">' + esc(info) + '</p>' : '') +
+      '<div class="row"><div class="field" id="w-in"><label for="f-in">Entrada</label>' + hourSel('f-in', e.in, true) + '</div>' +
+      '<div class="field"><label for="f-out">Salida</label>' + hourSel('f-out', e.out, true) + '</div></div>' +
+      '<div class="chips" id="chips" aria-label="Salidas frecuentes"></div>' +
+      '<label class="check"><input type="checkbox" id="f-hol"' + (hol ? ' checked' : '') + '> Es feriado</label>' +
+      '<label class="check"><input type="checkbox" id="f-via"' + (e.via ? ' checked' : '') + '> Corresponde viáticos</label>' +
+      '<div class="field" style="margin-bottom:14px"><label for="f-note">Nota</label><input type="text" id="f-note" maxlength="200" value="' + esc(e.note || '') + '" placeholder="Ej.: guardia, reparación, cierre de mes"></div>' +
+      '<div class="result"><small id="rlabel">Extras de este día</small><b id="rval">0 h</b></div>' +
+      '<div class="split"><span>Primera hora</span><b id="rfirst">—</b></div>' +
+      '<div class="split"><span>Horas siguientes</span><b id="rrest">—</b></div>' +
+      '<div class="split" style="margin-bottom:14px"><span>Importe del día</span><b id="ramt">—</b></div>' +
+      '<p class="warnline" id="warn" hidden></p>' +
+      '<div class="btns"><button type="button" class="btn primary" id="save">Guardar</button>' +
+      (S.entries[sel] ? '<button type="button" class="btn danger" id="del">Quitar registro</button>' : '') + '</div>';
+    ['f-in', 'f-out', 'f-hol'].forEach(function (id) { $(id).addEventListener('input', refreshForm); });
+    $('f-hol').addEventListener('change', refreshForm);
+    $('save').addEventListener('click', onSave);
+    if ($('del')) $('del').addEventListener('click', onDelete);
+    ['f-in', 'f-out', 'f-note'].forEach(function (id) {
+      $(id).addEventListener('keydown', function (ev) { if (ev.key === 'Enter') { ev.preventDefault(); onSave(); } });
+    });
+    refreshForm();
+  }
+  function readForm() {
+    return { in: $('f-in').value, out: $('f-out').value, hol: $('f-hol').checked, via: $('f-via').checked, note: $('f-note').value.trim() };
+  }
+  function refreshForm() {
+    if (!sel || !$('f-in')) return;
+    var f = readForm(), kd = kind(sel, { hol: f.hol }), all = kd !== 'semana', c = S.cfg;
+    $('w-in').hidden = !(all || c.early);
+    $('chips').hidden = all;
+    var rl = all
+      ? cap(kd === 'feriado' ? 'feriado' : kd === 'sabado' ? 'sábado' : 'domingo') + ': todas las horas trabajadas son extras.'
+      : 'Día hábil: cuentan las horas desde las ' + c.end + (c.early ? ' y lo que llegue antes de las ' + c.start : '') + '.';
+    $('rulel').textContent = rl;
+    if (!all) {
+      var base = toMin(c.end), hs = '';
+      for (var i = 1; i <= 4; i++) { var t = fmtHM(base + i * 60); hs += '<button type="button" class="chip" data-t="' + pad(Math.floor((base + i * 60) / 60) % 24) + ':' + pad((base + i * 60) % 60) + '">' + t + '</button>'; }
+      $('chips').innerHTML = hs;
+      Array.prototype.forEach.call($('chips').children, function (b) { b.addEventListener('click', function () { $('f-out').value = b.getAttribute('data-t'); refreshForm(); }); });
+    }
+    var tmp = { in: f.in, out: f.out, hol: f.hol };
+    var r = calc(sel, tmp);
+    var ready = all ? okT(f.in) && okT(f.out) : okT(f.out);
+    $('rval').textContent = ready ? fmtLong(r.min) + ' · ' + dec(r.min) + ' h' : '—';
+    $('rlabel').textContent = ready ? 'Extras de este día' : (all ? 'Cargá entrada y salida' : 'Cargá la hora de salida');
+    var sp = splitMin(ready ? r.min : 0);
+    var mo = money(ready ? r.min : 0);
+    $('rfirst').textContent = ready ? fmtLong(sp.first) + ' · ' + fmtMoney(mo.a1) : '—';
+    $('rrest').textContent = ready ? fmtLong(sp.rest) + ' · ' + fmtMoney(mo.a2) : '—';
+    $('ramt').textContent = ready ? fmtMoney(mo.total) : '—';
+    var w = $('warn');
+    if (ready && r.span > 960) { w.hidden = false; w.textContent = 'Revisá los horarios: la jornada supera las 16 horas.'; } else w.hidden = true;
+  }
+  function onSave() {
+    if (!sel) return;
+    var f = readForm(), dflt = has(HOL, sel), e = {};
+    if (okT(f.in)) e.in = f.in;
+    if (okT(f.out)) e.out = f.out;
+    if (f.hol !== dflt) e.hol = f.hol;
+    if (f.note) e.note = f.note.slice(0, 200);
+    if (f.via) e.via = true;
+    var all = kind(sel, { hol: f.hol }) !== 'semana';
+    if (!e.out && e.hol === undefined && !e.note && !e.via) {
+      if (S.entries[sel]) { onDelete(); return; }
+      toast('Cargá la hora de salida o marcá viáticos.'); return;
+    }
+    if (all && e.out && !e.in) { toast('En sábados, domingos y feriados falta la hora de entrada.'); return; }
+    S.entries[sel] = e;
+    persistEntry(sel, e);
+    var m = calc(sel, e).min;
+    toast(m ? 'Guardado: ' + fmtLong(m) + ' de extras' + (e.via ? ', con viáticos.' : '.') : (e.via ? 'Guardado. Este día lleva viáticos y no suma extras.' : 'Guardado. Este día no suma extras.'));
+    renderAll(); renderEditor();
+  }
+  function onDelete() {
+    if (!sel || !S.entries[sel]) return;
+    delete S.entries[sel];
+    persistEntry(sel, null);
+    toast('Registro quitado.');
+    renderAll(); renderEditor();
+  }
+
+  /*PDF*/
+  /* Generador mínimo de PDF (Helvetica estándar, sin librerías): texto, tablas y saltos de página. */
+  var PDF_W = (function () {
+    var w = { ' ': 278, '!': 278, '"': 355, '#': 556, '$': 556, '%': 889, '&': 667, "'": 191, '(': 333, ')': 333, '*': 389, '+': 584, ',': 278, '-': 333, '.': 278, '/': 278, ':': 278, ';': 278, '<': 584, '=': 584, '>': 584, '?': 556, '@': 1015, '[': 278, '\\': 278, ']': 278, '^': 469, '_': 556, '`': 333, '{': 334, '|': 260, '}': 334, '~': 584 };
+    var up = [667, 667, 722, 722, 667, 611, 778, 722, 278, 500, 667, 556, 833, 722, 778, 667, 778, 722, 667, 611, 722, 667, 944, 667, 667, 611];
+    var lo = [556, 556, 500, 556, 556, 278, 556, 556, 222, 222, 500, 222, 833, 556, 556, 556, 556, 333, 500, 278, 556, 500, 722, 500, 500, 500];
+    for (var i = 0; i < 26; i++) { w[String.fromCharCode(65 + i)] = up[i]; w[String.fromCharCode(97 + i)] = lo[i]; }
+    for (var d = 0; d < 10; d++) w[String(d)] = 556;
+    w['ª'] = 370; w['°'] = 400; w['·'] = 278; w['¿'] = 611; w['¡'] = 333;
+    return w;
+  })();
+  function pdfL1(s) {
+    return String(s).replace(/[–—]/g, '-').replace(/[‘’]/g, "'").replace(/[“”]/g, '"').replace(/[^\x20-\xFF]/g, '?');
+  }
+  function pdfTw(s, size, bold) {
+    var w = 0;
+    for (var i = 0; i < s.length; i++) {
+      var ch = s.charAt(i), c = PDF_W[ch];
+      if (c === undefined) c = PDF_W[ch.normalize ? ch.normalize('NFD').charAt(0) : ch];
+      w += c === undefined ? 556 : c;
+    }
+    return w * size / 1000 * (bold ? 1.06 : 1);
+  }
+  function pdfWrap(s, maxW, size) {
+    s = pdfL1(s);
+    if (!s) return [''];
+    var words = s.split(' '), lines = [], cur = '';
+    words.forEach(function (wd) {
+      var t = cur ? cur + ' ' + wd : wd;
+      if (pdfTw(t, size) <= maxW) { cur = t; return; }
+      if (cur) { lines.push(cur); cur = ''; }
+      while (pdfTw(wd, size) > maxW && wd.length > 1) {
+        var k = wd.length;
+        while (k > 1 && pdfTw(wd.slice(0, k), size) > maxW) k--;
+        lines.push(wd.slice(0, k)); wd = wd.slice(k);
+      }
+      cur = wd;
+    });
+    lines.push(cur);
+    return lines;
+  }
+  function buildPdf(m) {
+    var W = 595.28, H = 841.89, MG = 40, pages = [], cur = null, y = 0;
+    var ACC = '0.055 0.42 0.357', INK = '0.08 0.125 0.114', MUT = '0.35 0.4 0.38', LINE = '0.82 0.86 0.84', WHITE = '1 1 1';
+    function np() { cur = []; pages.push(cur); y = MG; }
+    function pesc(s) { return s.replace(/[\\()]/g, '\\$&'); }
+    function txt(x, base, s, size, bold, col, align, wd) {
+      s = pdfL1(s);
+      var xx = x;
+      if (align === 'r') xx = x + wd - pdfTw(s, size, bold);
+      cur.push('BT /F' + (bold ? 2 : 1) + ' ' + size + ' Tf ' + col + ' rg ' + xx.toFixed(2) + ' ' + (H - base).toFixed(2) + ' Td (' + pesc(s) + ') Tj ET');
+    }
+    function rect(x, top, w, h, col) { cur.push(col + ' rg ' + x.toFixed(2) + ' ' + (H - top - h).toFixed(2) + ' ' + w.toFixed(2) + ' ' + h.toFixed(2) + ' re f'); }
+    function hline(x1, x2, top) { cur.push('0.6 w ' + LINE + ' RG ' + x1.toFixed(2) + ' ' + (H - top).toFixed(2) + ' m ' + x2.toFixed(2) + ' ' + (H - top).toFixed(2) + ' l S'); }
+    function table(widths, aligns, head, rows, foot, size, wrapCol) {
+      var LH = size + 3, PAD = 4, x0 = MG;
+      var total = widths.reduce(function (a, b) { return a + b; }, 0);
+      function drawHead() {
+        rect(x0, y, total, LH + PAD * 2, ACC);
+        var x = x0;
+        head.forEach(function (h, i) { txt(x + 4, y + PAD + size, h, size, true, WHITE, aligns[i], widths[i] - 8); x += widths[i]; });
+        y += LH + PAD * 2;
+      }
+      function drawRow(cells, bold, shade) {
+        var wrapped = cells.map(function (c, i) { return i === wrapCol ? pdfWrap(c, widths[i] - 8, size) : [pdfL1(c)]; });
+        var n = Math.max.apply(null, wrapped.map(function (l) { return l.length; }));
+        var rh = n * LH + PAD * 2;
+        if (y + rh > H - 56) { np(); drawHead(); }
+        if (shade) rect(x0, y, total, rh, shade);
+        var x = x0;
+        wrapped.forEach(function (lines, i) {
+          lines.forEach(function (ln, j) { txt(x + 4, y + PAD + size + j * LH, ln, size, bold, INK, aligns[i], widths[i] - 8); });
+          x += widths[i];
+        });
+        y += rh;
+        hline(x0, x0 + total, y);
+      }
+      if (y + 2 * (LH + PAD * 2) > H - 56) np();
+      drawHead();
+      rows.forEach(function (r) { drawRow(r, false, null); });
+      if (foot) drawRow(foot, true, '0.93 0.95 0.94');
+    }
+    np();
+    txt(MG, y + 18, m.title, 20, true, INK);
+    txt(MG, y + 18, m.generated, 9, false, MUT, 'r', W - 2 * MG);
+    y += 28;
+    txt(MG, y + 11, m.period, 11, false, INK); y += 16;
+    if (m.who) { txt(MG, y + 11, m.who, 11, false, INK); y += 16; }
+    y += 8;
+    (m.lines || []).forEach(function (l) { txt(MG, y + 10, l, 10, false, INK); y += 15; });
+    y += 6;
+    table([300, 120, 95], ['l', 'r', 'r'], m.sumHead, m.sumRows, m.sumFoot, 10, -1);
+    y += 22;
+    txt(MG, y + 12, 'Detalle diario', 12, true, INK); y += 20;
+    if (m.dayRows.length) table([54, 52, 72, 42, 44, 48, 60, 48, 95], ['l', 'l', 'l', 'r', 'r', 'r', 'r', 'l', 'l'], m.dayHead, m.dayRows, m.dayFoot, 9, 8);
+    else txt(MG, y + 11, m.emptyNote, 10, false, MUT);
+    pages.forEach(function (p, i) { cur = p; txt(MG, H - 28, 'Página ' + (i + 1) + ' de ' + pages.length, 8, false, MUT, 'r', W - 2 * MG); });
+
+    var n = pages.length, objs = {}, kids = [], i;
+    objs[1] = '<< /Type /Catalog /Pages 2 0 R >>';
+    for (i = 0; i < n; i++) kids.push((5 + 2 * i) + ' 0 R');
+    objs[2] = '<< /Type /Pages /Kids [' + kids.join(' ') + '] /Count ' + n + ' >>';
+    objs[3] = '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>';
+    objs[4] = '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>';
+    for (i = 0; i < n; i++) {
+      var data = pages[i].join('\n');
+      objs[5 + 2 * i] = '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ' + W + ' ' + H + '] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents ' + (6 + 2 * i) + ' 0 R >>';
+      objs[6 + 2 * i] = '<< /Length ' + data.length + ' >>\nstream\n' + data + '\nendstream';
+    }
+    var count = 4 + 2 * n, out = '%PDF-1.4\n', off = [];
+    for (i = 1; i <= count; i++) { off[i] = out.length; out += i + ' 0 obj\n' + objs[i] + '\nendobj\n'; }
+    var xr = out.length;
+    out += 'xref\n0 ' + (count + 1) + '\n0000000000 65535 f \n';
+    for (i = 1; i <= count; i++) out += String(off[i]).padStart(10, '0') + ' 00000 n \n';
+    out += 'trailer\n<< /Size ' + (count + 1) + ' /Root 1 0 R >>\nstartxref\n' + xr + '\n%%EOF';
+    var bytes = new Uint8Array(out.length);
+    for (i = 0; i < out.length; i++) bytes[i] = out.charCodeAt(i) & 255;
+    return bytes;
+  }
+  /*ENDPDF*/
+
+  /* ---------- Exportar ---------- */
+  function summaryText() {
+    var st = monthStats(view.y, view.m), rg = periodKeys(view.y, view.m);
+    var lines = ['Horas extras - período del ' + fmtDate(rg.a) + ' al ' + fmtDate(rg.b),
+      'Lunes a viernes: ' + fmtLong(st.semana), 'Sábados: ' + fmtLong(st.sabado), 'Domingos y feriados: ' + fmtLong(st.fin),
+      'Total: ' + fmtLong(st.total) + ' (' + dec(st.total) + ' h)',
+      'Primera hora de cada día: ' + fmtLong(st.first) + ' (' + dec(st.first) + ' h)',
+      'Horas siguientes: ' + fmtLong(st.rest) + ' (' + dec(st.rest) + ' h)',
+      'Importe primera hora (' + fmtMoney(S.cfg.p1) + ' por hora): ' + fmtMoney(st.a1),
+      'Importe horas siguientes (' + fmtMoney(S.cfg.p2) + ' por hora): ' + fmtMoney(st.a2),
+      'A cobrar: ' + fmtMoney(st.amount),
+      'Días con viáticos: ' + st.viat, ''];
+    monthKeys().forEach(function (k) {
+      var c = calc(k, S.entries[k]), p = parseKey(k), via = S.entries[k].via;
+      if (c.min || via) lines.push(DIAS3[dowOf(k)] + ' ' + p.d + '/' + pad(p.m + 1) + ' · ' + KIND_NAME[c.kind] + (c.min ? ' · ' + fmtHM(c.min) : '') + (via ? ' · Viáticos' : ''));
+    });
+    return lines.join('\n');
+  }
+  function csvText() {
+    var q = function (s) { s = String(s == null ? '' : s); return /[;"\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; };
+    var rows = [['Fecha', 'Día', 'Tipo', 'Entrada', 'Salida', 'Extras (h:mm)', 'Extras (decimal)', '1.ª hora (decimal)', 'Siguientes (decimal)', 'Importe 1.ª hora ($)', 'Importe siguientes ($)', 'Importe total ($)', 'Viáticos', 'Nota']];
+    var tot = 0, tf = 0, tr = 0, ta1 = 0, ta2 = 0, tv = 0;
+    monthKeys().forEach(function (k) {
+      var e = S.entries[k], c = calc(k, e), p = parseKey(k);
+      var sp = splitMin(c.min);
+      var mo = money(c.min);
+      tot += c.min; tf += sp.first; tr += sp.rest; ta1 += mo.a1; ta2 += mo.a2; if (e.via) tv++;
+      rows.push([pad(p.d) + '/' + pad(p.m + 1) + '/' + p.y, DIAS[dowOf(k)], KIND_NAME[c.kind], e.in || '', e.out || '', fmtHM(c.min), dec(c.min), dec(sp.first), dec(sp.rest), mo.a1, mo.a2, mo.total, e.via ? 'Sí' : '', e.note || '']);
+    });
+    rows.push(['Total', '', '', '', '', fmtHM(tot), dec(tot), dec(tf), dec(tr), ta1, ta2, ta1 + ta2, tv, '']);
+    return '﻿' + rows.map(function (r) { return r.map(q).join(';'); }).join('\r\n');
+  }
+  function onCopy() {
+    var txt = summaryText();
+    var fallback = function () { var b = $('copybox'); b.hidden = false; var t = $('copytext'); t.value = txt; t.focus(); t.select(); toast('Seleccioné el texto: copialo con Ctrl+C.'); };
+    try {
+      navigator.clipboard.writeText(txt).then(function () { toast('Resumen copiado.'); }, fallback);
+    } catch (e) { fallback(); }
+  }
+  /* Descarga: usa la API de la cuenta si existe; si no, descarga normal del navegador. */
+  function saveFile(filename, data, mime) {
+    if (downloads) return downloads.save({ filename: filename, data: data });
+    return new Promise(function (resolve, reject) {
+      try {
+        var blob = new Blob([data], { type: mime });
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = url; a.download = filename;
+        document.body.appendChild(a); a.click();
+        setTimeout(function () { document.body.removeChild(a); URL.revokeObjectURL(url); }, 1000);
+        resolve({ status: 'saved' });
+      } catch (err) { reject(err); }
+    });
+  }
+  function onExport() {
+    saveFile('horas-extras-' + view.y + '-' + pad(view.m + 1) + '.csv', csvText(), 'text/csv;charset=utf-8')
+      .then(function (r) { if (r && r.status === 'saved') toast('Archivo guardado.'); })
+      .catch(function (err) { if (!err || err.code !== 'declined') toast('No se pudo descargar el archivo.'); });
+  }
+
+  function onPdf() {
+    var st = monthStats(view.y, view.m), rg = periodKeys(view.y, view.m), rows = [], tot = 0, tf = 0, tr = 0, tv = 0;
+    monthKeys().forEach(function (k) {
+      var e = S.entries[k], c = calc(k, e), sp = splitMin(c.min), p = parseKey(k);
+      tot += c.min; tf += sp.first; tr += sp.rest; if (e.via) tv++;
+      var hor = okT(e.in) && okT(e.out) ? e.in + ' - ' + e.out : okT(e.out) ? 'sale ' + e.out : '';
+      rows.push([DIAS3[dowOf(k)] + ' ' + pad(p.d) + '/' + pad(p.m + 1), KIND_NAME[c.kind], hor,
+        c.min ? fmtHM(c.min) : '-', c.min ? fmtHM(sp.first) : '-', sp.rest ? fmtHM(sp.rest) : '-',
+        c.min ? fmtMoney(money(c.min).total) : '-', e.via ? 'Sí' : '-', e.note || '']);
+    });
+    var g = new Date();
+    var bytes;
+    try {
+      bytes = buildPdf({
+        title: 'Horas extras',
+        generated: 'Generado el ' + pad(g.getDate()) + '/' + pad(g.getMonth() + 1) + '/' + g.getFullYear(),
+        period: 'Período del ' + fmtDate(rg.a) + ' al ' + fmtDate(rg.b),
+        who: whoName ? 'Cuenta: ' + whoName : '',
+        lines: ['Lunes a viernes: ' + fmtLong(st.semana) + '    Sábados: ' + fmtLong(st.sabado) + '    Domingos y feriados: ' + fmtLong(st.fin),
+          'Días con extras: ' + st.days + '    Días con viáticos: ' + st.viat],
+        sumHead: ['Concepto', 'Horas', 'Importe'],
+        sumRows: [
+          ['Primera hora de cada día (' + fmtMoney(S.cfg.p1) + ' por hora)', fmtLong(st.first), fmtMoney(st.a1)],
+          ['Horas siguientes (' + fmtMoney(S.cfg.p2) + ' por hora)', fmtLong(st.rest), fmtMoney(st.a2)]
+        ],
+        sumFoot: ['Total a cobrar', fmtLong(st.total), fmtMoney(st.amount)],
+        dayHead: ['Fecha', 'Tipo', 'Horario', 'Extras', '1.ª hora', 'Siguientes', 'Importe', 'Viáticos', 'Nota'],
+        dayRows: rows,
+        dayFoot: ['Total', '', '', fmtHM(tot), fmtHM(tf), fmtHM(tr), fmtMoney(st.amount), String(tv), ''],
+        emptyNote: 'Sin horas cargadas en este período.'
+      });
+    } catch (err) { toast('No se pudo generar el PDF.'); return; }
+    saveFile('horas-extras-' + view.y + '-' + pad(view.m + 1) + '.pdf', bytes, 'application/pdf')
+      .then(function (r) { if (r && r.status === 'saved') toast('PDF guardado.'); })
+      .catch(function (err) { if (!err || err.code !== 'declined') toast('No se pudo descargar el PDF.'); });
+  }
+
+  /* ---------- Orquestación ---------- */
+  function renderAll() { renderSummary(); renderCal(); renderRows(); }
+  function openDay(k) {
+    sel = k;
+    var rg = periodKeys(view.y, view.m);
+    if (k < rg.a || k > rg.b) { view = periodOf(k); renderAll(); } else renderCal();
+    renderEditor();
+    if (window.matchMedia('(max-width: 900px)').matches) {
+      var rm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      $('editor').scrollIntoView({ behavior: rm ? 'auto' : 'smooth', block: 'nearest' });
+    }
+  }
+  function goMonth(delta) {
+    var d = new Date(view.y, view.m + delta, 1);
+    view = { y: d.getFullYear(), m: d.getMonth() };
+    sel = null;
+    renderAll(); renderEditor();
+  }
+
+  $('prev').addEventListener('click', function () { goMonth(-1); });
+  $('next').addEventListener('click', function () { goMonth(1); });
+  $('today').addEventListener('click', function () { view = periodOf(todayKey); renderAll(); openDay(todayKey); });
+  $('cal').addEventListener('click', function (ev) { var b = ev.target.closest('[data-k]'); if (b) openDay(b.getAttribute('data-k')); });
+  $('rows').addEventListener('click', function (ev) { var r = ev.target.closest('[data-k]'); if (r) openDay(r.getAttribute('data-k')); });
+  function onPeriodDates() {
+    var err = setPeriod(view.y, view.m, $('p-a').value, $('p-b').value);
+    if (err) { toast(err); renderCal(); return; }
+    persistCfg(); sel = null;
+    renderAll(); renderEditor(); toast('Fechas del período guardadas.');
+  }
+  $('p-a').addEventListener('change', onPeriodDates);
+  $('p-b').addEventListener('change', onPeriodDates);
+  $('p-reset').addEventListener('click', function () {
+    var d = defPeriod(view.y, view.m);
+    var err = setPeriod(view.y, view.m, d.a, d.b);
+    if (err) { toast(err); return; }
+    persistCfg(); sel = null; renderAll(); renderEditor(); toast('Fechas restablecidas.');
+  });
+  $('copy').addEventListener('click', onCopy);
+  $('export').addEventListener('click', onExport);
+  $('pdf').addEventListener('click', onPdf);
+  ['c-start', 'c-end'].forEach(function (id) {
+    $(id).addEventListener('change', function () {
+      var v = $(id).value;
+      if (!okT(v)) { $(id).value = id === 'c-start' ? S.cfg.start : S.cfg.end; return; }
+      if (id === 'c-start') S.cfg.start = v; else S.cfg.end = v;
+      persistCfg(); renderAll(); renderRules(); refreshForm();
+    });
+  });
+  ['c-p1', 'c-p2'].forEach(function (id) {
+    $(id).addEventListener('change', function () {
+      var v = parseFloat($(id).value), f = id === 'c-p1' ? 'p1' : 'p2';
+      if (!isFinite(v) || v < 0) { $(id).value = S.cfg[f]; toast('Ingresá un precio válido.'); return; }
+      S.cfg[f] = v;
+      persistCfg(); renderAll(); renderRules(); refreshForm();
+    });
+  });
+  $('c-early').addEventListener('change', function () { S.cfg.early = $('c-early').checked; persistCfg(); renderAll(); refreshForm(); });
+
+  /* ---------- Paleta de colores (se guarda por dispositivo) ---------- */
+  var PALETTES = [
+    { id: 'auto', name: 'Predeterminada', sw: ['#EEF2F0', '#0E6B5B', '#2D5F8F', '#A8620E', '#B23A2B'] },
+    { id: 'oceano', name: 'Océano', sw: ['#EAF1F7', '#0B63A8', '#3A7CA5', '#B5791B', '#B8402F'] },
+    { id: 'atardecer', name: 'Atardecer', sw: ['#FBF1E8', '#C2410C', '#8A5A3C', '#B7791F', '#A61E4D'] },
+    { id: 'violeta', name: 'Violeta', sw: ['#F1EEF8', '#6D3FC4', '#4C5DB0', '#B2701A', '#B8365B'] },
+    { id: 'bosque', name: 'Bosque', sw: ['#EDF1E6', '#3F7D20', '#4A7A8C', '#A8700F', '#A5402B'] },
+    { id: 'grafito', name: 'Grafito (oscuro)', sw: ['#141414', '#8AB4F8', '#7FB0E0', '#E0A04A', '#EE7F6D'] },
+    { id: 'medianoche', name: 'Medianoche (oscuro)', sw: ['#0B1220', '#5AA9FF', '#7C9CFF', '#F0B35A', '#FF8A7A'] },
+    { id: 'contraste', name: 'Alto contraste', sw: ['#FFFFFF', '#0033CC', '#0033CC', '#8A4B00', '#B00020'] }
+  ];
+  var PLS = 'horas-extras-paleta';
+  var palette = 'auto';
+  function applyPalette(id) {
+    if (!PALETTES.some(function (x) { return x.id === id; })) id = 'auto';
+    palette = id;
+    if (id === 'auto') document.documentElement.removeAttribute('data-palette');
+    else document.documentElement.setAttribute('data-palette', id);
+    Array.prototype.forEach.call($('swatches').children, function (b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-p') === id)); });
+  }
+  function renderPalettes() {
+    $('swatches').innerHTML = PALETTES.map(function (x) {
+      return '<button type="button" class="swatch" data-p="' + x.id + '" aria-pressed="false"><span class="dots" aria-hidden="true">' +
+        x.sw.map(function (c) { return '<i style="background:' + c + '"></i>'; }).join('') + '</span><span>' + x.name + '</span></button>';
+    }).join('');
+    var saved = 'auto';
+    try { saved = localStorage.getItem(PLS) || 'auto'; } catch (e) { /* sin almacenamiento */ }
+    applyPalette(saved);
+  }
+  $('swatches').addEventListener('click', function (ev) {
+    var b = ev.target.closest('[data-p]');
+    if (!b) return;
+    applyPalette(b.getAttribute('data-p'));
+    try { localStorage.setItem(PLS, palette); } catch (e) { /* sin almacenamiento */ }
+  });
+
+  /* ---------- Color de resaltado de los días con horas ---------- */
+  var HLS = ['#F2C94C', '#F2994A', '#EB6F92', '#56CCF2', '#6FCF97', '#BB86FC', '#EF5350'];
+  var HLK = 'horas-extras-resalte';
+  var hlColor = HLS[0];
+  function applyHl(c) {
+    if (!/^#[0-9a-fA-F]{6}$/.test(c || '')) c = HLS[0];
+    hlColor = c.toUpperCase();
+    document.documentElement.style.setProperty('--hl', hlColor);
+    Array.prototype.forEach.call($('hlrow').querySelectorAll('.hlopt'), function (b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-c') === hlColor)); });
+    var ci = $('hl-custom'); if (ci) ci.value = hlColor.toLowerCase();
+  }
+  function renderHl() {
+    $('hlrow').innerHTML = HLS.map(function (c) {
+      return '<button type="button" class="hlopt" data-c="' + c + '" style="--c:' + c + '" aria-label="Resaltar con ' + c + '" aria-pressed="false"></button>';
+    }).join('') + '<label class="hlcustom">Otro <input type="color" id="hl-custom" value="#f2c94c" aria-label="Elegir otro color de resaltado"></label>';
+    var saved = HLS[0];
+    try { saved = localStorage.getItem(HLK) || HLS[0]; } catch (e) { /* sin almacenamiento */ }
+    applyHl(saved);
+  }
+  function saveHl() { try { localStorage.setItem(HLK, hlColor); } catch (e) { /* sin almacenamiento */ } }
+  $('hlrow').addEventListener('click', function (ev) {
+    var b = ev.target.closest('[data-c]');
+    if (!b) return;
+    applyHl(b.getAttribute('data-c')); saveHl();
+  });
+  $('hlrow').addEventListener('input', function (ev) {
+    if (ev.target.id === 'hl-custom') { applyHl(ev.target.value); saveHl(); }
+  });
+
+  loadLocal();
+  renderPalettes();
+  renderHl();
+  setStatus('connecting');
+  renderAll(); renderRules(); renderEditor();
+
+  /* Cuenta privada del usuario: si existe, reemplaza al almacenamiento del navegador. */
+  (async function () {
+    var c = window.claude;
+    if (!c || !c.use) { setStatus('local'); return; }
+    try {
+      var results = await Promise.all([c.use('db'), c.use('user'), c.use('downloads')]);
+      var db = results[0], user = results[1];
+      if (results[2]) downloads = results[2];
+      var id = user ? await user.id() : null;
+      if (!db || !id) { setStatus('local'); return; }
+      try { var me = await user.me(); whoName = me.name || me.email || ''; if (whoName) $('who').textContent = 'Cuenta: ' + whoName; } catch (e2) { /* sin nombre visible */ }
+      col = db.collection('data/users/' + id);
+      backend = 'db';
+      var timer = setTimeout(function () { setStatus('error'); }, 10000);
+      col.onSnapshot(function (snap) {
+        clearTimeout(timer);
+        var en = {}, cfg = null;
+        snap.docs.forEach(function (d) {
+          var v = d.data();
+          if (!v) return;
+          if (d.id === 'cfg') cfg = v; else if (d.id.indexOf('e-') === 0) en[d.id.slice(2)] = Object.assign({}, v);
+        });
+        S.entries = en;
+        if (cfg) S.cfg = Object.assign({ start: '08:00', end: '17:00', early: false, p1: 27000, p2: 9000 }, cfg);
+        setStatus(snap.metadata.fromCache ? 'connecting' : 'db');
+        renderAll(); renderRules(); refreshForm();
+      }, function () { setStatus('error'); });
+    } catch (e) { setStatus('local'); }
+  })();
+})();
+</script>
+
+</body></html>
